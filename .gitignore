@@ -1,0 +1,20 @@
+
+# Python
+__pycache__/
+*.pyc
+
+# Generated outputs
+outputs/chunks/
+outputs/*.csv
+outputs/*.json
+
+# Operating system files
+.DS_Store
+Thumbs.db
+
+# Environment files
+.env
+
+# Sample datasets
+data/
+documents/
