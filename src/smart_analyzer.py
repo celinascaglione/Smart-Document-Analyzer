@@ -1,10 +1,9 @@
 import csv
 from pathlib import Path
 
-from analyzer import extract_metadata_from_text
 from chunker import auto_chunk_text, split_text_by_separator, split_text_into_chunks
+from extractors.extractor_factory import ExtractorFactory
 from file_loader import load_text_from_file
-from llm_extractor import extract_metadata_with_llm
 from reporter import save_strategy_report
 
 
@@ -24,6 +23,7 @@ class SmartDocumentAnalyzer:
         self.extraction_mode = extraction_mode
         self.output_folder = Path(output_folder)
         self.csv_output = Path(csv_output)
+        self.extractor = ExtractorFactory.create(extraction_mode)
 
     def get_input_files(self):
         if self.input_file.is_file():
@@ -31,7 +31,6 @@ class SmartDocumentAnalyzer:
 
         if self.input_file.is_dir():
             supported_extensions = [".txt", ".pdf", ".docx"]
-
             files = []
 
             for file_path in self.input_file.iterdir():
@@ -69,13 +68,7 @@ class SmartDocumentAnalyzer:
         return chunks, selected_strategy
 
     def extract_metadata_from_chunk(self, chunk):
-        if self.extraction_mode == "regex":
-            return extract_metadata_from_text(chunk)
-
-        if self.extraction_mode == "llm":
-            return extract_metadata_with_llm(chunk)
-
-        raise ValueError("Invalid extraction mode. Use 'regex' or 'llm'.")
+        return self.extractor.extract(chunk)
 
     def extract_metadata(self, chunks, source_file):
         all_metadata = []
@@ -91,7 +84,6 @@ class SmartDocumentAnalyzer:
 
     def calculate_metrics(self, total_characters, total_chunks, all_metadata):
         total_metadata_records = len(all_metadata)
-
         unique_document_ids = set()
 
         for record in all_metadata:
@@ -137,7 +129,6 @@ class SmartDocumentAnalyzer:
 
     def save_chunks(self, chunks, source_file):
         self.output_folder.mkdir(parents=True, exist_ok=True)
-
         source_name = source_file.stem
 
         for i, chunk in enumerate(chunks, start=1):
@@ -156,7 +147,6 @@ class SmartDocumentAnalyzer:
             print(f"\nProcessing file: {file_path}\n")
 
             text = self.load_text(file_path)
-
             chunks, selected_strategy = self.create_chunks(text)
 
             total_characters += len(text)
