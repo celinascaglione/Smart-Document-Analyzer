@@ -2,23 +2,29 @@
 
 ## Overview
 
-Smart Document Analyzer is a Python project designed to process large document collections and extract structured metadata from semi-structured text.
+**Smart Document Analyzer** is a Python project designed to process large collections of semi-structured documents and automatically extract structured metadata.
 
-It supports TXT, DOCX, and PDF files, applies adaptive chunking strategies, extracts metadata using regular expressions, and exports results to CSV and JSON reports.
+The application supports **TXT**, **DOCX**, and **PDF** files, applies adaptive chunking strategies, processes individual files or entire folders, and exports structured results to CSV and JSON reports.
+
+The project was designed with a modular architecture that allows different extraction engines (Regex, OpenAI, and future LLMs) to be integrated without modifying the core analyzer.
 
 ---
 
-## Main Features
+# Features
 
-* Process a single file or a full folder of documents.
-* Supports `.txt`, `.docx`, and `.pdf`.
-* Automatically selects the best chunking strategy.
-* Chunking strategies:
+* Process a single document or an entire folder.
+* Support for:
 
-  * Separator-based chunking.
-  * Pattern-based chunking.
-  * Fixed-size overlap chunking.
-* Extracts structured metadata:
+  * `.txt`
+  * `.docx`
+  * `.pdf`
+* Automatic chunking strategy selection.
+* Multiple chunking strategies:
+
+  * Separator-based
+  * Pattern-based
+  * Fixed-size overlap
+* Metadata extraction:
 
   * document ID
   * name
@@ -26,20 +32,45 @@ It supports TXT, DOCX, and PDF files, applies adaptive chunking strategies, extr
   * email
   * city
   * source file
-* Exports metadata to CSV.
-* Generates execution reports in JSON.
-* Detects duplicate records.
-* Calculates extraction metrics.
+* CSV export.
+* JSON execution reports.
+* Duplicate detection.
+* Extraction metrics.
+* Command-line interface (CLI).
+* Extensible extraction architecture using the Factory Pattern.
+* Ready for OpenAI integration.
 
 ---
 
-## Current Test Results
+# Example CLI Usage
 
-The analyzer was tested on a folder containing:
+Run with default parameters:
 
-* `sample.txt`
-* `sample.docx`
-* `sample.pdf`
+```bash
+python src/main.py
+```
+
+Run specifying options:
+
+```bash
+python src/main.py --input documents --chunking auto --extractor regex --expected 3000
+```
+
+Display help:
+
+```bash
+python src/main.py --help
+```
+
+---
+
+# Current Test Results
+
+The analyzer was tested using:
+
+* sample.txt
+* sample.docx
+* sample.pdf
 
 Results:
 
@@ -53,7 +84,7 @@ Extraction rate: 100.00%
 Unique extraction rate: 100.00%
 ```
 
-Automatic strategies selected:
+Automatic strategy selection:
 
 ```text
 sample.docx -> pattern
@@ -63,11 +94,49 @@ sample.txt  -> separator
 
 ---
 
-## Project Structure
+# Automated Tests
+
+The project includes automated tests built with **pytest**.
+
+Run them with:
+
+```bash
+set PYTHONPATH=src
+pytest
+```
+
+Current status:
+
+```text
+7 passed
+```
+
+---
+
+# Architecture
+
+The extraction pipeline follows a Factory Pattern.
+
+```text
+                 SmartDocumentAnalyzer
+                           │
+                           ▼
+                  ExtractorFactory
+                    ┌───────────────┐
+                    │               │
+                    ▼               ▼
+            RegexExtractor   OpenAIExtractor
+```
+
+This design makes it easy to add future extractors (Gemini, Ollama, Claude, etc.) without changing the analyzer itself.
+
+---
+
+# Project Structure
 
 ```text
 Smart-Document-Analyzer/
-│
+
 ├── data/
 ├── documents/
 ├── outputs/
@@ -76,6 +145,7 @@ Smart-Document-Analyzer/
 │   └── strategy_report.json
 │
 ├── src/
+│   ├── extractors/
 │   ├── analyzer.py
 │   ├── chunker.py
 │   ├── file_loader.py
@@ -86,16 +156,25 @@ Smart-Document-Analyzer/
 │   ├── smart_analyzer.py
 │   └── main.py
 │
+├── tests/
+│   ├── test_chunker.py
+│   ├── test_factory.py
+│   ├── test_file_loader.py
+│   └── test_regex_extractor.py
+│
 ├── README.md
+├── LICENSE
 ├── requirements.txt
 └── .gitignore
 ```
 
 ---
 
-## Technologies
+# Technologies
 
 * Python
+* argparse
+* pytest
 * Faker
 * pypdf
 * python-docx
@@ -106,17 +185,18 @@ Smart-Document-Analyzer/
 
 ---
 
-## Future Improvements
+# Future Improvements
 
-* LLM-based extraction.
-* Semantic chunking with embeddings.
+* Real OpenAI-powered metadata extraction.
+* Gemini integration.
+* Ollama integration.
 * OCR support for scanned PDFs.
-* Batch processing reports by file.
-* Command-line interface.
-* RAG-ready document pipeline.
+* Semantic chunking using embeddings.
+* RAG-ready document retrieval pipeline.
+* Streamlit web interface.
 
 ---
 
-## Author
+# Author
 
-Developed as a portfolio project focused on document processing pipelines for Large Language Models.
+Developed as a portfolio project focused on document processing pipelines and scalable architectures for Large Language Models (LLMs).
