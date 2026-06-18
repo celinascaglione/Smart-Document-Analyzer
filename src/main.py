@@ -24,7 +24,7 @@ def parse_arguments():
     parser.add_argument(
         "--extractor",
         default="regex",
-        choices=["regex", "llm"],
+        choices=["regex", "openai"],
         help="Extraction mode"
     )
 

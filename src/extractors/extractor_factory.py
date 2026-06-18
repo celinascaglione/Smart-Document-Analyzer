@@ -10,7 +10,7 @@ class ExtractorFactory:
         if extraction_mode == "regex":
             return RegexExtractor()
 
-        if extraction_mode == "llm":
+        if extraction_mode == "openai":
             return OpenAIExtractor()
 
         raise ValueError(
