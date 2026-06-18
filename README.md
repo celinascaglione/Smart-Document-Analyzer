@@ -182,6 +182,20 @@ Smart-Document-Analyzer/
 * Regular Expressions
 * CSV
 * JSON
+## Screenshots
+
+### Command Line Help
+
+![CLI Help](images/cli_help.png)
+
+### Execution Example
+
+![Execution Example](images/execution.png)
+
+### Automated Tests
+
+![Pytest Results](images/tests.png)
+
 
 ---
 
