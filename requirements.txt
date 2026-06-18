@@ -2,3 +2,5 @@ Faker
 pypdf
 python-docx
 reportlab
+openai
+python-dotenv

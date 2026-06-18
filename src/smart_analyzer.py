@@ -4,6 +4,7 @@ from pathlib import Path
 from analyzer import extract_metadata_from_text
 from chunker import auto_chunk_text, split_text_by_separator, split_text_into_chunks
 from file_loader import load_text_from_file
+from llm_extractor import extract_metadata_with_llm
 from reporter import save_strategy_report
 
 
@@ -13,12 +14,14 @@ class SmartDocumentAnalyzer:
         input_file,
         expected_documents=1000,
         chunking_strategy="auto",
+        extraction_mode="regex",
         output_folder="outputs/chunks",
         csv_output="outputs/extracted_metadata.csv",
     ):
         self.input_file = Path(input_file)
         self.expected_documents = expected_documents
         self.chunking_strategy = chunking_strategy
+        self.extraction_mode = extraction_mode
         self.output_folder = Path(output_folder)
         self.csv_output = Path(csv_output)
 
@@ -65,11 +68,20 @@ class SmartDocumentAnalyzer:
 
         return chunks, selected_strategy
 
+    def extract_metadata_from_chunk(self, chunk):
+        if self.extraction_mode == "regex":
+            return extract_metadata_from_text(chunk)
+
+        if self.extraction_mode == "llm":
+            return extract_metadata_with_llm(chunk)
+
+        raise ValueError("Invalid extraction mode. Use 'regex' or 'llm'.")
+
     def extract_metadata(self, chunks, source_file):
         all_metadata = []
 
         for chunk in chunks:
-            metadata = extract_metadata_from_text(chunk)
+            metadata = self.extract_metadata_from_chunk(chunk)
 
             if metadata["document_id"] is not None:
                 metadata["source_file"] = source_file.name
@@ -155,7 +167,7 @@ class SmartDocumentAnalyzer:
             print(f"Chunks created for file: {len(chunks)}")
 
             print("\nAnalyzing first chunk...\n")
-            first_chunk_metadata = extract_metadata_from_text(chunks[0])
+            first_chunk_metadata = self.extract_metadata_from_chunk(chunks[0])
             print(first_chunk_metadata)
 
             file_metadata = self.extract_metadata(chunks, file_path)
@@ -175,6 +187,7 @@ class SmartDocumentAnalyzer:
         print(f"Unique extraction rate: {metrics['unique_extraction_rate']:.2f}%")
         print(f"Chunking strategy requested: {self.chunking_strategy}")
         print(f"Chunking strategies selected: {selected_strategies}")
+        print(f"Extraction mode used: {self.extraction_mode}")
 
         report_file = save_strategy_report(
             requested_strategy=self.chunking_strategy,
